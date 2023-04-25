@@ -3,7 +3,7 @@ sequenceDiagram
     participant browser
     participant server
     
-    Note left of browser: user enter new note and clicks save
+    Note left of browser: user enters new note and clicks save
 
     Note left of browser: browser handles submit form event<br/> by sending XHR to server
 
