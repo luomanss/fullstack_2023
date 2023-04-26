@@ -1,6 +1,24 @@
 import { useEffect, useState } from "react";
 import personService from "./services/persons";
 
+const NotificationType = {
+  SUCCESS: Symbol("success"),
+  ERROR: Symbol("error"),
+};
+
+const Notification = ({ notification }) => {
+  if (notification === null) {
+    return null;
+  }
+
+  const { message, type } = notification;
+  const className = `notification ${
+    type === NotificationType.SUCCESS ? "success" : "error"
+  }`;
+
+  return <div className={className}>{message}</div>;
+};
+
 const Filter = ({ filter, setFilter }) => {
   return (
     <div>
@@ -10,7 +28,7 @@ const Filter = ({ filter, setFilter }) => {
   );
 };
 
-const PersonForm = ({ persons, setPersons }) => {
+const PersonForm = ({ persons, setPersons, onAddOrUpdate }) => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
 
@@ -38,6 +56,8 @@ const PersonForm = ({ persons, setPersons }) => {
                 : person
             )
           );
+
+          await onAddOrUpdate(`Updated ${updatedPersonWithId.name}`, NotificationType.SUCCESS);
         }
       }
       return;
@@ -48,6 +68,7 @@ const PersonForm = ({ persons, setPersons }) => {
 
     if (newPersonWithId) {
       setPersons([...persons, newPersonWithId]);
+      await onAddOrUpdate(`Added ${newPersonWithId.name}`, NotificationType.SUCCESS);
     }
   };
 
@@ -88,9 +109,18 @@ const Persons = ({ filter, persons, remove }) => {
   );
 };
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [filter, setFilter] = useState("");
+  const [notification, setNotification] = useState(null);
+
+  const showNotification = async (message, type) => {
+    setNotification({ message, type });
+    await sleep(2000);
+    setNotification(null);
+  };
 
   useEffect(() => {
     (async () => {
@@ -109,6 +139,13 @@ const App = () => {
 
       if (removed) {
         setPersons(persons.filter((person) => person.id !== id));
+
+        await showNotification(`Deleted ${person.name}`, NotificationType.ERROR);
+      } else {
+        await showNotification(
+          `Information of ${person.name} has already been removed from server`,
+          NotificationType.ERROR
+        );
       }
     }
   };
@@ -116,9 +153,14 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification notification={notification} />
       <Filter filter={filter} setFilter={setFilter} />
       <h2>add a new</h2>
-      <PersonForm persons={persons} setPersons={setPersons} />
+      <PersonForm
+        persons={persons}
+        setPersons={setPersons}
+        onAddOrUpdate={showNotification}
+      />
       <h2>Numbers</h2>
       <Persons filter={filter} persons={persons} remove={remove} />
     </div>
