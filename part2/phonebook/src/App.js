@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import personService from "./services/persons";
 
 const Filter = ({ filter, setFilter }) => {
   return (
@@ -13,15 +14,41 @@ const PersonForm = ({ persons, setPersons }) => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
 
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault();
 
     if (persons.some((person) => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`);
+      if (
+        window.confirm(
+          `${newName} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        const person = persons.find((person) => person.name === newName);
+        const updatedPerson = { ...person, number: newNumber };
+        const updatedPersonWithId = await personService.update(
+          person.id,
+          updatedPerson
+        );
+
+        if (updatedPersonWithId) {
+          setPersons(
+            persons.map((person) =>
+              person.id === updatedPersonWithId.id
+                ? updatedPersonWithId
+                : person
+            )
+          );
+        }
+      }
       return;
     }
 
-    setPersons([...persons, { name: newName, number: newNumber }]);
+    const newPerson = { name: newName, number: newNumber };
+    const newPersonWithId = await personService.create(newPerson);
+
+    if (newPersonWithId) {
+      setPersons([...persons, newPersonWithId]);
+    }
   };
 
   return (
@@ -44,7 +71,7 @@ const PersonForm = ({ persons, setPersons }) => {
   );
 };
 
-const Persons = ({ filter, persons }) => {
+const Persons = ({ filter, persons, remove }) => {
   const filteredPersons = persons.filter((person) =>
     person.name.toLowerCase().includes(filter.toLowerCase())
   );
@@ -52,8 +79,9 @@ const Persons = ({ filter, persons }) => {
   return (
     <div>
       {filteredPersons.map((person) => (
-        <div key={person.name}>
+        <div key={person.id}>
           {person.name} {person.number}
+          <button onClick={(e) => remove(person.id)}>delete</button>
         </div>
       ))}
     </div>
@@ -66,12 +94,24 @@ const App = () => {
 
   useEffect(() => {
     (async () => {
-      const response = await fetch("http://localhost:3001/persons");
-      const data = await response.json();
-      
-      setPersons(data);
+      const persons = await personService.getAll();
+
+      setPersons(persons);
     })();
   }, []);
+
+  const remove = async (id) => {
+    const person = persons.find((person) => person.id === id);
+    const shouldRemove = window.confirm(`Delete ${person.name}?`);
+
+    if (shouldRemove) {
+      const removed = await personService.remove(id);
+
+      if (removed) {
+        setPersons(persons.filter((person) => person.id !== id));
+      }
+    }
+  };
 
   return (
     <div>
@@ -80,7 +120,7 @@ const App = () => {
       <h2>add a new</h2>
       <PersonForm persons={persons} setPersons={setPersons} />
       <h2>Numbers</h2>
-      <Persons filter={filter} persons={persons} />
+      <Persons filter={filter} persons={persons} remove={remove} />
     </div>
   );
 };
