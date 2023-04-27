@@ -1,13 +1,16 @@
 import express from "express";
 import morgan from "morgan";
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 const app = express();
 
+app.use(express.static("build"));
 app.use(express.json());
 
 morgan.token("body", (req, res) => JSON.stringify(req.body));
-app.use(morgan(":method :url :status :res[content-length] - :response-time ms :body"));
+app.use(
+  morgan(":method :url :status :res[content-length] - :response-time ms :body")
+);
 
 const persons = [
   { id: 1, name: "Arto Hellas", number: "040-123456" },
@@ -18,7 +21,7 @@ const persons = [
 
 let id = 5;
 
-app.get("/persons", (req, res) => {
+app.get("/persons", (_req, res) => {
   res.json(persons);
 });
 
@@ -49,6 +52,29 @@ app.get("/persons/:id", (req, res) => {
 
   if (person) {
     res.json(person);
+  } else {
+    res.status(404).end();
+  }
+});
+
+app.put("/persons/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const person = persons.find((person) => person.id === id);
+
+  if (person) {
+    const { name, number } = req.body;
+
+    if (name && number) {
+      if (persons.find((person) => person.name === name && person.id !== id)) {
+        return res.status(400).json({ error: "name must be unique" });
+      }
+
+      person.name = name;
+      person.number = number;
+      res.json(person);
+    } else {
+      res.status(400).json({ error: "name or number missing" });
+    }
   } else {
     res.status(404).end();
   }
