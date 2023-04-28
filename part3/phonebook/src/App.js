@@ -43,10 +43,14 @@ const PersonForm = ({ persons, setPersons, onAddOrUpdate }) => {
       ) {
         const person = persons.find((person) => person.name === newName);
         const updatedPerson = { ...person, number: newNumber };
-        const updatedPersonWithId = await personService.update(
-          person.id,
-          updatedPerson
-        );
+        const response = await personService.update(person.id, updatedPerson);
+
+        if (response.error) {
+          await onAddOrUpdate(response.error, NotificationType.ERROR);
+          return;
+        }
+
+        const updatedPersonWithId = response.person;
 
         if (updatedPersonWithId) {
           setPersons(
@@ -57,18 +61,31 @@ const PersonForm = ({ persons, setPersons, onAddOrUpdate }) => {
             )
           );
 
-          await onAddOrUpdate(`Updated ${updatedPersonWithId.name}`, NotificationType.SUCCESS);
+          await onAddOrUpdate(
+            `Updated ${updatedPersonWithId.name}`,
+            NotificationType.SUCCESS
+          );
         }
       }
       return;
     }
 
     const newPerson = { name: newName, number: newNumber };
-    const newPersonWithId = await personService.create(newPerson);
+    const response = await personService.create(newPerson);
+
+    if (response.error) {
+      await onAddOrUpdate(response.error, NotificationType.ERROR);
+      return;
+    }
+
+    const newPersonWithId = response.person;
 
     if (newPersonWithId) {
       setPersons([...persons, newPersonWithId]);
-      await onAddOrUpdate(`Added ${newPersonWithId.name}`, NotificationType.SUCCESS);
+      await onAddOrUpdate(
+        `Added ${newPersonWithId.name}`,
+        NotificationType.SUCCESS
+      );
     }
   };
 
@@ -124,9 +141,18 @@ const App = () => {
 
   useEffect(() => {
     (async () => {
-      const persons = await personService.getAll();
+      const response = await personService.getAll();
 
-      setPersons(persons);
+      if (response.error) {
+        await showNotification(response.error, NotificationType.ERROR);
+        return;
+      }
+
+      const persons = response.persons;
+
+      if (persons) {
+        setPersons(persons);
+      }
     })();
   }, []);
 
@@ -135,12 +161,22 @@ const App = () => {
     const shouldRemove = window.confirm(`Delete ${person.name}?`);
 
     if (shouldRemove) {
-      const removed = await personService.remove(id);
+      const response = await personService.remove(id);
 
-      if (removed) {
-        setPersons(persons.filter((person) => person.id !== id));
+      if (response.error) {
+        await showNotification(response.error, NotificationType.ERROR);
+        return;
+      }
 
-        await showNotification(`Deleted ${person.name}`, NotificationType.ERROR);
+      const success = response.success;
+
+      setPersons(persons.filter((person) => person.id !== id));
+      
+      if (success) {
+        await showNotification(
+          `Deleted ${person.name}`,
+          NotificationType.ERROR
+        );
       } else {
         await showNotification(
           `Information of ${person.name} has already been removed from server`,

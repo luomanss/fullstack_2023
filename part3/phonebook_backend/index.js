@@ -129,11 +129,14 @@ app.get("/info", async (_req, res) => {
 const errorHandler = (error, _req, res, next) => {
   console.log(error.message);
 
-  if (error.name === "CastError") {
-    return res.status(400).send({ error: "malformatted id" });
+  switch (error.name) {
+    case "CastError":
+      return res.status(400).send({ error: "Malformatted id" });
+    case "ValidationError":
+      return res.status(400).json({ error: error.message });
+    default:
+      return next(error);
   }
-
-  next(error);
 };
 
 app.use(errorHandler);
