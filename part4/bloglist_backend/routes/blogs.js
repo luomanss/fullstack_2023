@@ -9,15 +9,9 @@ blogsRouter.get("/", async (_request, response) => {
   return response.json(blogs);
 });
 
-blogsRouter.post("/", async (request, response, next) => {
+blogsRouter.post("/", async (request, response) => {
   const blog = new Blog(request.body);
-  let savedBlog;
-
-  try {
-    savedBlog = await blog.save();
-  } catch (error) {
-    return next(error);
-  }
+  const savedBlog= await blog.save();
 
   return response.status(201).json(savedBlog);
 });

@@ -7,8 +7,8 @@ const error = (...params) => {
 };
 
 const logger = {
-  info,
-  error,
+  info: process.env.NODE_ENV !== "test" ? info : () => {},
+  error: process.env.NODE_ENV !== "test" ? error : () => {},
 };
 
 export default logger;

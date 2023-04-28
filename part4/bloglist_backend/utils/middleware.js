@@ -1,5 +1,7 @@
+import logger from "./logger.js";
+
 export const errorHandler = (error, _request, response, next) => {
-  console.error(error.message);
+  logger.error(error.message);
 
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" });

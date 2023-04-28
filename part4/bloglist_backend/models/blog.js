@@ -2,10 +2,19 @@ import mongoose from "../utils/mongoose.js";
 
 const blogSchema = mongoose.Schema(
   {
-    title: String,
+    title: {
+      type: String,
+      required: true,
+    },
     author: String,
-    url: String,
-    likes: Number,
+    url: {
+      type: String,
+      required: true,
+    },
+    likes: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     toJSON: {
@@ -18,6 +27,6 @@ const blogSchema = mongoose.Schema(
   }
 );
 
-const Blog = mongoose.model('Blog', blogSchema)
+const Blog = mongoose.model("Blog", blogSchema);
 
 export default Blog;
