@@ -58,7 +58,6 @@ app.get("/persons/:id", async (req, res, next) => {
   if (!person) {
     return res.status(404).end();
   }
-
   return res.json(person);
 });
 
