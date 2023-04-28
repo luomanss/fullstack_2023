@@ -171,7 +171,7 @@ const App = () => {
       const success = response.success;
 
       setPersons(persons.filter((person) => person.id !== id));
-      
+
       if (success) {
         await showNotification(
           `Deleted ${person.name}`,
