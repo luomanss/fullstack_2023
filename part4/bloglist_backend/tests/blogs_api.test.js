@@ -185,6 +185,23 @@ describe("when there are initially some blogs saved", () => {
 
         expect(response.status).toBe(400);
       });
+
+      test("adding a blog also adds it to the user's blogs", async () => {
+        const newBlog = {
+          title: "Test Blog",
+          content: "Test Content",
+          url: "http://testurl.com",
+        };
+
+        const result = await api
+          .post("/api/blogs")
+          .set("Authorization", `Bearer ${token}`)
+          .send(newBlog);
+
+        const user = await User.findById(testUsers[0].id);
+
+        expect(user.blogs.map(id => id.toString())).toContainEqual(result.body.id);
+      });
     });
 
     describe("deleting a blog", () => {
