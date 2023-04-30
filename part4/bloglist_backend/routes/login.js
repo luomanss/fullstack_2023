@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import express from "express";
 import User from "../models/user.js";
-import { decrypt } from "../utils/password";
+import { decrypt } from "../utils/password.js";
 import { SECRET } from "../utils/config.js";
 
 const loginRouter = express.Router();
