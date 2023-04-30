@@ -18,5 +18,15 @@ if (!MONGODB_URI) {
   process.exit(1);
 }
 
+const SECRET = process.env.SECRET;
+
+if (!SECRET) {
+  log.error(
+    `No token secret. Set SECRET environment variable.`
+  );
+
+  process.exit(1);
+}
+
 export const PORT = process.env.PORT || 3001;
-export { MONGODB_URI };
+export { MONGODB_URI, SECRET };
