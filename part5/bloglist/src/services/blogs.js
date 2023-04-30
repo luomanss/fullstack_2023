@@ -1,10 +1,26 @@
-import axios from 'axios'
-const baseUrl = '/api/blogs'
+import axios from "axios";
+const baseUrl = "/api/blogs";
 
-const getAll = () => {
-  const request = axios.get(baseUrl)
-  return request.then(response => response.data)
-}
+const getAll = async () => {
+  const response = await axios.get(baseUrl);
 
-// eslint-disable-next-line import/no-anonymous-default-export
-export default { getAll }
+  return response.data;
+};
+
+const create = async (blog) => {
+  const response = await axios.post(baseUrl, blog);
+
+  if (response.status === 201) {
+    return {
+      blog: response.data,
+    };
+  }
+
+  return {
+    error: "Could not create new blog",
+  };
+};
+
+const service = { getAll, create };
+
+export default service;

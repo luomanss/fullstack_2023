@@ -200,7 +200,9 @@ describe("when there are initially some blogs saved", () => {
 
         const user = await User.findById(testUsers[0].id);
 
-        expect(user.blogs.map(id => id.toString())).toContainEqual(result.body.id);
+        expect(user.blogs.map((id) => id.toString())).toContainEqual(
+          result.body.id
+        );
       });
     });
 
