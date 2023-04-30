@@ -1,5 +1,6 @@
-import { useState, useEffect, useContext, createContext } from "react";
+import { useState, useEffect, useContext, createContext, useRef } from "react";
 import Blog from "./components/Blog";
+import Togglable from "./components/Togglable";
 import loginService from "./services/auth";
 import blogService from "./services/blogs";
 
@@ -86,6 +87,8 @@ const Blogs = ({ onLogout }) => {
     onLogout();
   };
 
+  const blogFormRef = useRef();
+
   const handleNewBlog = async (blog) => {
     const response = await blogService.create(blog);
 
@@ -96,6 +99,7 @@ const Blogs = ({ onLogout }) => {
 
     const newBlog = response.blog;
 
+    blogFormRef.current.toggleVisibility();
     setBlogs(blogs.concat(newBlog));
     dispatchMessage({
       type: "success",
@@ -110,8 +114,10 @@ const Blogs = ({ onLogout }) => {
       <p>
         {user.name} logged in <button onClick={handleLogout}>logout</button>
       </p>
-      <h2>create new</h2>
-      <BlogForm onSubmit={handleNewBlog} />
+      <Togglable buttonLabel="new blog" ref={blogFormRef}>
+        <h2>create new</h2>
+        <BlogForm onSubmit={handleNewBlog} />
+      </Togglable>
       {blogs.map((blog) => (
         <Blog key={blog.id} blog={blog} />
       ))}
