@@ -74,7 +74,7 @@ describe("when there are initially some blogs saved", () => {
       });
     });
 
-    test("all blogs have a user property", async () => {
+    test("all blogs have user property", async () => {
       const response = await api.get("/api/blogs");
 
       response.body.forEach((blog) => {
@@ -184,6 +184,22 @@ describe("when there are initially some blogs saved", () => {
           .send(newBlog);
 
         expect(response.status).toBe(400);
+      });
+
+      test("adding a blog populates user property", async () => {
+        const newBlog = {
+          title: "Test Blog",
+          content: "Test Content",
+          url: "http://testurl.com",
+        };
+
+        const response = await api
+          .post("/api/blogs")
+          .set("Authorization", `Bearer ${token}`)
+          .send(newBlog);
+
+        expect(response.body.user).toBeDefined();
+        expect(response.body.user.id).toBe(testUsers[0].id.toString());
       });
 
       test("adding a blog also adds it to the user's blogs", async () => {

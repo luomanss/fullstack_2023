@@ -27,6 +27,11 @@ blogsRouter.post("/", async (request, response) => {
 
   user.blogs.push(savedBlog._id);
   await user.save();
+  await savedBlog.populate("user", {
+    username: 1,
+    name: 1,
+    id: 1,
+  });
 
   return response.status(201).json(savedBlog);
 });
