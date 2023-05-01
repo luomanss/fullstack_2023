@@ -268,9 +268,12 @@ describe("when there are initially some blogs saved", () => {
     describe("updating a blog", () => {
       test("blog can be updated", async () => {
         const blogs = await Blog.find({});
-
         const updatedBlog = {
           title: "Updated Blog",
+          author: "Updated Author",
+          url: "http://updatedurl.com",
+          likes: 10,
+          user: blogs[0].user,
         };
 
         const response = await api
@@ -282,10 +285,19 @@ describe("when there are initially some blogs saved", () => {
       });
 
       test("updating with non-existent id returns 404", async () => {
+        const blogs = await Blog.find({});
+        const updatedBlog = {
+          title: "Updated Blog",
+          author: "Updated Author",
+          url: "http://updatedurl.com",
+          likes: 10,
+          user: blogs[0].user,
+        };
+
         const response = await api
           .put("/api/blogs/507f1f77bcf86cd799439011")
           .set("Authorization", `Bearer ${token}`)
-          .send();
+          .send(updatedBlog);
 
         expect(response.status).toBe(404);
       });
@@ -301,15 +313,55 @@ describe("when there are initially some blogs saved", () => {
 
       test("updating a blog populates user when returning", async () => {
         const blogs = await Blog.find({});
+        const updatedBlog = {
+          title: "Updated Blog",
+          author: "Updated Author",
+          url: "http://updatedurl.com",
+          likes: 10,
+          user: blogs[0].user,
+        };
 
         const response = await api
           .put(`/api/blogs/${blogs[0].id}`)
           .set("Authorization", `Bearer ${token}`)
-          .send();
+          .send(updatedBlog);
 
         expect(response.body.user).toBeDefined();
         expect(response.body.user.username).toBe(testUsers[0].username);
         expect(response.body.user.name).toBe(testUsers[0].name);
+      });
+
+      test("updating other user's blog returns 401", async () => {
+        const blogs = await Blog.find({});
+        const updatedBlog = {
+          title: "Updated Blog",
+          author: "Updated Author",
+          url: "http://updatedurl.com",
+          likes: 10,
+          user: blogs[0].user,
+        };
+
+        const response = await api
+          .put(`/api/blogs/${blogs[1].id}`)
+          .set("Authorization", `Bearer ${token}`)
+          .send(updatedBlog);
+
+        expect(response.status).toBe(401);
+      });
+    });
+    describe("patching a blog", () => {
+      test("blog can be patched", async () => {
+        const blogs = await Blog.find({});
+        const updatedBlog = {
+          title: "Updated Blog",
+        };
+
+        const response = await api
+          .patch(`/api/blogs/${blogs[0].id}`)
+          .set("Authorization", `Bearer ${token}`)
+          .send(updatedBlog);
+
+        expect(response.body.title).toBe(updatedBlog.title);
       });
     });
   });

@@ -37,7 +37,9 @@ blogsRouter.post("/", async (request, response) => {
 });
 
 blogsRouter.delete("/:id", async (request, response) => {
-  if (!request.user) {
+  const user = request.user;
+
+  if (!user) {
     return response.status(401).json({
       error: "token missing or invalid",
     });
@@ -50,7 +52,7 @@ blogsRouter.delete("/:id", async (request, response) => {
     return response.status(404).end();
   }
 
-  if (blog.user.toString() !== request.user._id.toString()) {
+  if (blog.user.toString() !== user._id.toString()) {
     return response.status(401).json({
       error: "only the creator of the blog can delete it",
     });
@@ -61,6 +63,53 @@ blogsRouter.delete("/:id", async (request, response) => {
   return response.status(204).end();
 });
 
+blogsRouter.patch("/:id", async (request, response) => {
+  const user = request.user;
+
+  if (!user) {
+    return response.status(401).json({
+      error: "token missing or invalid",
+    });
+  }
+
+  const { title, author, url, likes } = request.body;
+  
+  if (!title && !author && !url && !likes) {
+    return response.status(400).json({
+      error: "no fields to update",
+    });
+  }
+  
+  const { id } = request.params;
+  const blog = await Blog.findById(id);
+
+  if (!blog) {
+    return response.status(404).end();
+  }
+
+  if (author || title || url) {
+    if (blog.user.toString() !== user._id.toString()) {
+      return response.status(401).json({
+        error: "only the creator of the blog can update these fields",
+      });
+    }
+  }
+
+  blog.title = title || blog.title;
+  blog.author = author || blog.author;
+  blog.url = url || blog.url;
+  blog.likes = likes || blog.likes;
+
+  await blog.save();
+  await blog.populate("user", {
+    username: 1,
+    name: 1,
+    id: 1,
+  });
+
+  return response.json(blog);
+});
+
 blogsRouter.put("/:id", async (request, response) => {
   if (!request.user) {
     return response.status(401).json({
@@ -68,9 +117,15 @@ blogsRouter.put("/:id", async (request, response) => {
     });
   }
 
-  const { id } = request.params;
-  const { title, author, url, likes } = request.body;
+  const { title, author, url, likes, user } = request.body;
 
+  if (!title || !author || !url || !likes || !user) {
+    return response.status(400).json({
+      error: "missing fields",
+    });
+  }
+
+  const { id } = request.params;
   const blog = await Blog.findById(id);
 
   if (!blog) {
@@ -83,10 +138,11 @@ blogsRouter.put("/:id", async (request, response) => {
     });
   }
 
-  blog.title = title || blog.title;
-  blog.author = author || blog.author;
-  blog.url = url || blog.url;
-  blog.likes = likes || blog.likes;
+  blog.title = title;
+  blog.author = author;
+  blog.url = url;
+  blog.likes = likes;
+  blog.user = user;
 
   await blog.save();
   await blog.populate("user", {
