@@ -84,6 +84,11 @@ blogsRouter.put("/:id", async (request, response) => {
   blog.likes = likes || blog.likes;
 
   await blog.save();
+  await blog.populate("user", {
+    username: 1,
+    name: 1,
+    id: 1,
+  });
 
   return response.json(blog);
 });

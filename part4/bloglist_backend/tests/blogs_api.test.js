@@ -282,6 +282,19 @@ describe("when there are initially some blogs saved", () => {
 
         expect(response.status).toBe(400);
       });
+
+      test("updating a blog populates user when returning", async () => {
+        const blogs = await Blog.find({});
+
+        const response = await api
+          .put(`/api/blogs/${blogs[0].id}`)
+          .set("Authorization", `Bearer ${token}`)
+          .send();
+
+        expect(response.body.user).toBeDefined();
+        expect(response.body.user.username).toBe(testUsers[0].username);
+        expect(response.body.user.name).toBe(testUsers[0].name);
+      });
     });
   });
 });
