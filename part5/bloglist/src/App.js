@@ -1,14 +1,9 @@
-import { useState, useEffect, useContext, createContext, useRef } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import Blog from "./components/Blog";
 import Togglable from "./components/Togglable";
 import loginService from "./services/auth";
 import blogService from "./services/blogs";
-
-const AppContext = createContext({
-  user: null,
-  message: null,
-  dispatchMessage: () => {},
-});
+import AppContext from "./AppContext";
 
 const Notification = ({ message }) => {
   if (!message) {
@@ -74,12 +69,15 @@ const Blogs = ({ onLogout }) => {
   const { user, message, dispatchMessage } = useContext(AppContext);
 
   useEffect(() => {
+    console.log("rerender triggered");
+
     (async () => {
       const blogs = await blogService.getAll();
 
+      blogs.sort((a, b) => b.likes - a.likes);
       setBlogs(blogs);
     })();
-  });
+  }, []);
 
   const handleLogout = () => {
     loginService.logout();
@@ -107,6 +105,35 @@ const Blogs = ({ onLogout }) => {
     });
   };
 
+  const handleUpdate = async (updatedBlog, index) => {
+    const result = await blogService.update(updatedBlog);
+
+    if (result.error) {
+      dispatchMessage({ type: "error", content: result.error });
+      return;
+    }
+
+    const newBlogs = [...blogs];
+
+    newBlogs[index] = result.blog;
+    newBlogs.sort((a, b) => b.likes - a.likes);
+    setBlogs(newBlogs);
+  };
+
+  const handleDelete = async (id, index) => {
+    const result = await blogService.remove(id);
+
+    if (result.error) {
+      dispatchMessage({ type: "error", content: result.error });
+      return;
+    }
+
+    const newBlogs = [...blogs];
+
+    newBlogs.splice(index, 1);
+    setBlogs(newBlogs);
+  };
+
   return (
     <div>
       <h2>blogs</h2>
@@ -118,8 +145,13 @@ const Blogs = ({ onLogout }) => {
         <h2>create new</h2>
         <BlogForm onSubmit={handleNewBlog} />
       </Togglable>
-      {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} />
+      {blogs.map((blog, index) => (
+        <Blog
+          key={blog.id}
+          blog={blog}
+          onUpdate={(updateBlog) => handleUpdate(updateBlog, index)}
+          onDelete={(id) => handleDelete(id, index)}
+        />
       ))}
     </div>
   );

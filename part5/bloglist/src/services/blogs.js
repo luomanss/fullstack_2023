@@ -8,19 +8,69 @@ const getAll = async () => {
 };
 
 const create = async (blog) => {
-  const response = await axios.post(baseUrl, blog);
+  let response;
 
-  if (response.status === 201) {
-    return {
-      blog: response.data,
-    };
+  try {
+    response = await axios.post(baseUrl, blog);
+  } catch (error) {
+    if (error.response.status === 401) {
+      return {
+        error: "Unauthorized",
+      };
+    } else {
+      return {
+        error: "Something went wrong",
+      };
+    }
   }
 
   return {
-    error: "Could not create new blog",
+    blog: response.data,
   };
 };
 
-const service = { getAll, create };
+const patchLikes = async (blog) => {
+  let response;
+
+  try {
+    response = await axios.patch(`${baseUrl}/${blog.id}`, { likes: blog.likes });
+  } catch (error) {
+    if (error.response.status === 401) {
+      return {
+        error: "Unauthorized",
+      };
+    } else {
+      return {
+        error: "Something went wrong",
+      };
+    }
+  }
+
+  return {
+    blog: response.data,
+  };
+};
+
+const remove = async (id) => {
+  try {
+    await axios.delete(`${baseUrl}/${id}`);
+  } catch (error) {
+    if (error.response.status === 401) {
+      return {
+        error: "Unauthorized",
+      };
+    } else {
+      return {
+        error: "Something went wrong",
+      };
+    }
+  }
+
+  return {
+    success: true,
+  };
+};
+
+const service = { getAll, create, update: patchLikes, remove };
 
 export default service;

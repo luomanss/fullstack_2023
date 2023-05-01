@@ -13,6 +13,7 @@ const autoLogin = () => {
 
     return {
       user: {
+        id: parsedUser.id,
         username: parsedUser.username,
         name: parsedUser.name,
       },
@@ -40,6 +41,7 @@ const login = async ({ username, password }) => {
   }
 
   const user = {
+    id: response.data.id,
     username: response.data.username,
     name: response.data.name,
   };
