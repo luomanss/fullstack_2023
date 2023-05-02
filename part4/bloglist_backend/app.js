@@ -16,6 +16,13 @@ app.use(tokenExtractor);
 app.use("/api/blogs", userExtractor, blogs);
 app.use("/api/users", users);
 app.use("/api/login", login);
+
+if (process.env.NODE_ENV === "test") {
+  const module = await import("./routes/testing.js");
+
+  app.use("/api/testing", module.default);
+}
+
 app.use(errorHandler);
 
 export default app;
