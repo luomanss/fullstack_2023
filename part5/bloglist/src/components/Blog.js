@@ -25,19 +25,19 @@ const Blog = ({ blog, onUpdate, onDelete }) => {
   };
 
   return (
-    <div className="entry">
+    <div className="entry" data-cy="blog">
       {blog.title} {blog.author}
-      <button onClick={() => setVisible(!visible)}>view</button>
+      <button onClick={() => setVisible(!visible)} data-cy="view-button">view</button>
       {visible ? (
         <div>
           <div>{blog.url}</div>
           <div>
             likes {blog.likes}
-            <button onClick={handleLikes}>like</button>
+            <button onClick={handleLikes} data-cy="like-button">like</button>
           </div>
           <div>{blog.user.name}</div>
           {user && user.id === blog.user.id ? (
-            <button onClick={handleDelete}>delete</button>
+            <button onClick={handleDelete} data-cy="delete-button">delete</button>
           ) : null}
         </div>
       ) : null}

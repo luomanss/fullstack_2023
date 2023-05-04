@@ -81,7 +81,7 @@ const Main = ({ onLogout }) => {
       <h2>blogs</h2>
       <Notification message={message} />
       <p>
-        {user.name} logged in <button onClick={handleLogout}>logout</button>
+        {user.name} logged in <button onClick={handleLogout} data-cy="logout-button">logout</button>
       </p>
       <Togglable buttonLabel="new blog" ref={blogFormRef}>
         <h2>create new</h2>

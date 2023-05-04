@@ -27,8 +27,16 @@
 Cypress.Commands.add("login", ({ username, password }) => {
   cy.visit("http://localhost:3000");
 
-  cy.get("#username").type(username);
-  cy.get("#password").type(password);
+  cy.get("[data-cy=username-field]").type(username);
+  cy.get("[data-cy=password-field]").type(password);
 
-  cy.get("#login-button").click();
+  cy.get("[data-cy=login-button]").click();
+});
+
+Cypress.Commands.add("createBlog", ({ title, author, url }) => {
+  cy.get("[data-cy=toggle-visible-button]").click();
+  cy.get("[data-cy=title-field]").type(title);
+  cy.get("[data-cy=author-field").type(author);
+  cy.get("[data-cy=url-field").type(url);
+  cy.get("[data-cy=create-blog-button").click();
 });

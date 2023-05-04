@@ -26,6 +26,7 @@ const BlogForm = ({ onSubmit }) => {
           value={title}
           name="Title"
           onChange={({ target }) => setTitle(target.value)}
+          data-cy="title-field"
         />
       </div>
       <div>
@@ -36,6 +37,7 @@ const BlogForm = ({ onSubmit }) => {
           value={author}
           name="Author"
           onChange={({ target }) => setAuthor(target.value)}
+          data-cy="author-field"
         />
       </div>
       <div>
@@ -46,9 +48,10 @@ const BlogForm = ({ onSubmit }) => {
           value={url}
           name="Url"
           onChange={({ target }) => setUrl(target.value)}
+          data-cy="url-field"
         />
       </div>
-      <button id="create-button" type="submit">create</button>
+      <button id="create-button" type="submit" data-cy="create-blog-button">create</button>
     </form>
   );
 };
