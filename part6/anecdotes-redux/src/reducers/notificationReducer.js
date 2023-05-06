@@ -13,5 +13,18 @@ const slice = createSlice({
   },
 });
 
-export const { setNotification, clearNotification } = slice.actions;
+const { setNotification, clearNotification } = slice.actions;
+
+const sleep = (ms) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+export const setNotificationWithTimeout = (message, timeoutSeconds = 5) => {
+  return async (dispatch) => {
+    dispatch(setNotification(message));
+    await sleep(timeoutSeconds * 1000);
+    dispatch(clearNotification());
+  };
+};
+
 export default slice.reducer;
