@@ -1,9 +1,12 @@
+import { useContext } from "react";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import axios from "axios";
 import AnecdoteForm from "./components/AnecdoteForm";
 import Notification from "./components/Notification";
+import NotificationContext from "./context/NotificationContext";
 
 const App = () => {
+  const { setNotificationWithTimeout } = useContext(NotificationContext);
   const queryClient = useQueryClient();
 
   const voteMutation = useMutation(
@@ -22,6 +25,8 @@ const App = () => {
             previousAnecdote.id === anecdote.id ? anecdote : previousAnecdote
           )
         );
+
+        setNotificationWithTimeout(`you voted '${anecdote.content}'`, 5000);
       },
     }
   );

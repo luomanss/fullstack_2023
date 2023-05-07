@@ -1,7 +1,10 @@
+import { useContext } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import axios from "axios";
+import NotificationContext from "../context/NotificationContext";
 
 const AnecdoteForm = () => {
+  const { setNotificationWithTimeout } = useContext(NotificationContext);
   const queryClient = useQueryClient();
 
   const createMutation = useMutation(
@@ -15,9 +18,23 @@ const AnecdoteForm = () => {
         const previousAnecdotes = queryClient.getQueryData("anecdotes");
 
         queryClient.setQueryData(
-            "anecdotes",
+          "anecdotes",
           previousAnecdotes.concat(newAnecdote)
         );
+
+        setNotificationWithTimeout(
+          `a new anecdote '${newAnecdote.content}' created!`,
+          5000
+        );
+      },
+      onError: ({
+        response: {
+          data: { error },
+        },
+      }) => {
+        if (error) {
+          setNotificationWithTimeout(error, 5000);
+        }
       },
     }
   );
