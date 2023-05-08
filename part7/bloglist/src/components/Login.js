@@ -1,34 +1,36 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import PropTypes from "prop-types";
 // import AppContext from "../AppContext";
-import loginService from "../services/auth";
+// import loginService from "../services/auth";
 import Notification from "./Notification";
-import { setNotificationWithTimeoutSeconds } from "../reducers/notificationReducer";
+// import { setNotificationWithTimeoutSeconds } from "../reducers/notificationReducer";
+import { login } from "../reducers/userReducer";
 
-const Login = ({ onLogin }) => {
+const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   // const { message, dispatchMessage } = useContext(AppContext);
   const dispatch = useDispatch();
 
-  const handleLogin = async (event) => {
+  const handleLogin = (event) => {
     event.preventDefault();
 
-    const response = await loginService.login({ username, password });
+    dispatch(login({ username, password }));
 
-    if (response.error) {
-      dispatch(
-        setNotificationWithTimeoutSeconds(
-          { type: "error", content: response.error },
-          5
-        )
-      );
-      // dispatchMessage({ type: "error", content: response.error });
-      return;
-    }
+    // const response = await loginService.login({ username, password });
 
-    onLogin(response.user);
+    // if (response.error) {
+    //   dispatch(
+    //     setNotificationWithTimeoutSeconds(
+    //       { type: "error", content: response.error },
+    //       5
+    //     )
+    //   );
+    //   // dispatchMessage({ type: "error", content: response.error });
+    //   return;
+    // }
+
+    // onLogin(response.user);
   };
 
   return (
@@ -64,10 +66,6 @@ const Login = ({ onLogin }) => {
       </form>
     </div>
   );
-};
-
-Login.propTypes = {
-  onLogin: PropTypes.func.isRequired,
 };
 
 export default Login;

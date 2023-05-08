@@ -1,28 +1,29 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Main from "./components/Main";
 import Login from "./components/Login";
-import loginService from "./services/auth";
-import AppContext from "./AppContext";
+// import loginService from "./services/auth";
+// import AppContext from "./AppContext";
+import { autoLogin } from "./reducers/userReducer";
 
 const App = () => {
-  const [user, setUser] = useState(null);
+  // const [user, setUser] = useState(null);
+  const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const result = loginService.autoLogin();
+    // const result = loginService.autoLogin();
 
-    if (result) {
-      setUser(result.user);
-    }
+    // if (result) {
+    //   setUser(result.user);
+    // }
+    dispatch(autoLogin());
   }, []);
 
-  return (
-    <AppContext.Provider value={{ user }}>
-      {user ? (
-        <Main onLogout={() => setUser(null)} />
-      ) : (
-        <Login onLogin={(user) => setUser(user)} />
-      )}
-    </AppContext.Provider>
+  return user ? (
+    <Main />
+  ) : (
+    <Login />
   );
 };
 

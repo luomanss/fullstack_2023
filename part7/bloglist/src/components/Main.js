@@ -1,21 +1,22 @@
-import { useEffect, useContext, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import PropTypes from "prop-types";
-import AppContext from "../AppContext";
-import loginService from "../services/auth";
+// import PropTypes from "prop-types";
+// import AppContext from "../AppContext";
+// import loginService from "../services/auth";
 import Notification from "./Notification";
 import Togglable from "./Togglable";
 import Blog from "./Blog";
 import BlogForm from "./BlogForm";
 import { getAll } from "../reducers/blogsReducer";
+import { logout } from "../reducers/userReducer";
 
-const Main = ({ onLogout }) => {
-  const blogs = useSelector((state) => {
+const Main = () => {
+  const { blogs, user } = useSelector((state) => {
     const blogs = state.blogs.toSorted((a, b) => b.likes - a.likes);
 
-    return blogs;
+    return { blogs, user: state.user };
   });
-  const { user } = useContext(AppContext);
+  // const { user } = useContext(AppContext);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -23,9 +24,10 @@ const Main = ({ onLogout }) => {
   }, []);
 
   const handleLogout = () => {
-    loginService.logout();
+    dispatch(logout());
+    // loginService.logout();
 
-    onLogout();
+    // onLogout();
   };
 
   const blogFormRef = useRef();
@@ -49,10 +51,6 @@ const Main = ({ onLogout }) => {
       ))}
     </div>
   );
-};
-
-Main.propTypes = {
-  onLogout: PropTypes.func.isRequired,
 };
 
 export default Main;
