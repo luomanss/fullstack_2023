@@ -1,13 +1,16 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
-import AppContext from "../AppContext";
+// import AppContext from "../AppContext";
 import loginService from "../services/auth";
 import Notification from "./Notification";
+import { setNotificationWithTimeoutSeconds } from "../reducers/notificationReducer";
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { message, dispatchMessage } = useContext(AppContext);
+  // const { message, dispatchMessage } = useContext(AppContext);
+  const dispatch = useDispatch();
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -15,7 +18,13 @@ const Login = ({ onLogin }) => {
     const response = await loginService.login({ username, password });
 
     if (response.error) {
-      dispatchMessage({ type: "error", content: response.error });
+      dispatch(
+        setNotificationWithTimeoutSeconds(
+          { type: "error", content: response.error },
+          5
+        )
+      );
+      // dispatchMessage({ type: "error", content: response.error });
       return;
     }
 
@@ -25,7 +34,7 @@ const Login = ({ onLogin }) => {
   return (
     <div>
       <h2>log in to application</h2>
-      <Notification message={message} />
+      <Notification />
       <form onSubmit={handleLogin}>
         <div>
           username
@@ -49,7 +58,9 @@ const Login = ({ onLogin }) => {
             data-cy="password-field"
           />
         </div>
-        <button id="login-button" type="submit" data-cy="login-button">login</button>
+        <button id="login-button" type="submit" data-cy="login-button">
+          login
+        </button>
       </form>
     </div>
   );

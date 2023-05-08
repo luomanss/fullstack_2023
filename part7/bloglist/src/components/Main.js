@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext, useRef } from "react";
+import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 import AppContext from "../AppContext";
 import blogService from "../services/blogs";
@@ -7,10 +8,12 @@ import Notification from "./Notification";
 import Togglable from "./Togglable";
 import Blog from "./Blog";
 import BlogForm from "./BlogForm";
+import { setNotificationWithTimeoutSeconds } from "../reducers/notificationReducer";
 
 const Main = ({ onLogout }) => {
   const [blogs, setBlogs] = useState([]);
-  const { user, message, dispatchMessage } = useContext(AppContext);
+  const { user /* message, dispatchMessage */ } = useContext(AppContext);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     (async () => {
@@ -33,7 +36,13 @@ const Main = ({ onLogout }) => {
     const response = await blogService.create(blog);
 
     if (response.error) {
-      dispatchMessage({ type: "error", content: response.error });
+      dispatch(
+        setNotificationWithTimeoutSeconds(
+          { type: "error", content: response.error },
+          5
+        )
+      );
+      // dispatchMessage({ type: "error", content: response.error });
       return;
     }
 
@@ -41,17 +50,33 @@ const Main = ({ onLogout }) => {
 
     blogFormRef.current.toggleVisibility();
     setBlogs(blogs.concat(newBlog));
-    dispatchMessage({
-      type: "success",
-      content: `a new blog ${newBlog.title} by ${newBlog.author} added`,
-    });
+
+    dispatch(
+      setNotificationWithTimeoutSeconds(
+        {
+          type: "success",
+          content: `a new blog ${newBlog.title} by ${newBlog.author} added`,
+        },
+        5
+      )
+    );
+    // dispatchMessage({
+    //   type: "success",
+    //   content: `a new blog ${newBlog.title} by ${newBlog.author} added`,
+    // });
   };
 
   const handleUpdate = async (updatedBlog, index) => {
     const result = await blogService.update(updatedBlog);
 
     if (result.error) {
-      dispatchMessage({ type: "error", content: result.error });
+      dispatch(
+        setNotificationWithTimeoutSeconds(
+          { type: "error", content: result.error },
+          5
+        )
+      );
+      // dispatchMessage({ type: "error", content: result.error });
       return;
     }
 
@@ -66,7 +91,13 @@ const Main = ({ onLogout }) => {
     const result = await blogService.remove(id);
 
     if (result.error) {
-      dispatchMessage({ type: "error", content: result.error });
+      dispatch(
+        setNotificationWithTimeoutSeconds(
+          { type: "error", content: result.error },
+          5
+        )
+      );
+      // dispatchMessage({ type: "error", content: result.error });
       return;
     }
 
@@ -79,9 +110,12 @@ const Main = ({ onLogout }) => {
   return (
     <div>
       <h2>blogs</h2>
-      <Notification message={message} />
+      <Notification />
       <p>
-        {user.name} logged in <button onClick={handleLogout} data-cy="logout-button">logout</button>
+        {user.name} logged in{" "}
+        <button onClick={handleLogout} data-cy="logout-button">
+          logout
+        </button>
       </p>
       <Togglable buttonLabel="new blog" ref={blogFormRef}>
         <h2>create new</h2>
