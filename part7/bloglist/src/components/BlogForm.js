@@ -1,16 +1,16 @@
+import { useDispatch } from "react-redux";
 import { useState } from "react";
-import PropTypes from "prop-types";
+import { create } from "../reducers/blogsReducer";
 
-const BlogForm = ({ onSubmit }) => {
+const BlogForm = () => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [url, setUrl] = useState("");
+  const dispatch = useDispatch();
 
   const handleSubmit = (event) => {
     event.preventDefault();
-
-    onSubmit({ title, author, url });
-
+    dispatch(create({ title, author, url }));
     setTitle("");
     setAuthor("");
     setUrl("");
@@ -54,10 +54,6 @@ const BlogForm = ({ onSubmit }) => {
       <button id="create-button" type="submit" data-cy="create-blog-button">create</button>
     </form>
   );
-};
-
-BlogForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
 };
 
 export default BlogForm;

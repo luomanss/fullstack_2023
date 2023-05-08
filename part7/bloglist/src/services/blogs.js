@@ -71,6 +71,6 @@ const remove = async (id) => {
   };
 };
 
-const service = { getAll, create, update: patchLikes, remove };
+const service = { getAll, create, patchLikes, remove };
 
 export default service;
