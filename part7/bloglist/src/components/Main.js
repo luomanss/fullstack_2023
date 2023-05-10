@@ -3,12 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 // import PropTypes from "prop-types";
 // import AppContext from "../AppContext";
 // import loginService from "../services/auth";
+import { Outlet } from "react-router-dom";
 import Notification from "./Notification";
 import Togglable from "./Togglable";
 import Blog from "./Blog";
 import BlogForm from "./BlogForm";
 import { getAll } from "../reducers/blogsReducer";
-import { logout } from "../reducers/userReducer";
+import { logout } from "../reducers/authReducer";
 
 const Main = () => {
   const { blogs, user } = useSelector((state) => {
@@ -42,6 +43,7 @@ const Main = () => {
           logout
         </button>
       </p>
+      <Outlet />
       <Togglable buttonLabel="new blog" ref={blogFormRef}>
         <h2>create new</h2>
         <BlogForm />

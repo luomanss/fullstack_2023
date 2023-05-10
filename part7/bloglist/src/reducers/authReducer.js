@@ -21,8 +21,6 @@ export const login = (user) => {
   return async (dispatch) => {
     const response = await authService.login(user);
 
-    console.log(response);
-
     if (response.error) {
       dispatch(
         setNotificationWithTimeoutSeconds(
@@ -34,7 +32,7 @@ export const login = (user) => {
       return;
     }
 
-    dispatch(setUser(user));
+    dispatch(setUser(response.user));
   };
 };
 
@@ -48,10 +46,10 @@ export const logout = () => {
 
 export const autoLogin = () => {
   return async (dispatch) => {
-    const user = authService.autoLogin();
+    const response = authService.autoLogin();
 
-    if (user) {
-      dispatch(setUser(user));
+    if (response) {
+      dispatch(setUser(response.user));
     }
   };
 };

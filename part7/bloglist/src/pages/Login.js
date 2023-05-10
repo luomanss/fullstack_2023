@@ -1,21 +1,35 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 // import AppContext from "../AppContext";
 // import loginService from "../services/auth";
-import Notification from "./Notification";
+import Notification from "../components/Notification";
 // import { setNotificationWithTimeoutSeconds } from "../reducers/notificationReducer";
-import { login } from "../reducers/userReducer";
+// import { login } from "../reducers/authReducer";
+import { authActions } from "../store";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const user = useSelector((state) => state.user);
+  const navigate = useNavigate();
   // const { message, dispatchMessage } = useContext(AppContext);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(authActions.autoLogin());
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user]);
 
   const handleLogin = (event) => {
     event.preventDefault();
 
-    dispatch(login({ username, password }));
+    dispatch(authActions.login({ username, password }));
 
     // const response = await loginService.login({ username, password });
 
