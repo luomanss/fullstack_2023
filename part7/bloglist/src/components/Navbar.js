@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { authActions } from "../store";
 
 const User = () => {
@@ -27,6 +27,8 @@ const Navbar = () => {
   return (
     <nav>
       <h2>blogs</h2>
+      <NavLink to="/">Blogs</NavLink>
+      <NavLink to="/users">Users</NavLink>
       <User />
     </nav>
   );

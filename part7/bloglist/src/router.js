@@ -4,6 +4,7 @@ import App from "./App";
 import Guard from "./components/Guard";
 import Login from "./pages/Login";
 import Bloglist from "./pages/Bloglist";
+import Users from "./pages/Users";
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,14 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <Login />,
+      },
+      {
+        path: "/users",
+        element: (
+          <Guard>
+            <Users />
+          </Guard>
+        ),
       },
     ],
   },

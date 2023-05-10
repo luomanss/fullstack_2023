@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { useDispatch, /* useSelector */ } from "react-redux";
+// import { useEffect } from "react";
+// import { useDispatch, /* useSelector */ } from "react-redux";
 // import Main from "./components/Main";
 // import Login from "./components/Login";
 // import loginService from "./services/auth";
@@ -8,22 +8,22 @@ import { useDispatch, /* useSelector */ } from "react-redux";
 import Navbar from "./components/Navbar";
 import Notification from "./components/Notification";
 
-import { authActions } from "./store";
+// import { authActions } from "./store";
 import { Outlet } from "react-router-dom";
 
 const App = () => {
   // const [user, setUser] = useState(null);
   // const user = useSelector((state) => state.user);
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
-  useEffect(() => {
-    // const result = loginService.autoLogin();
+  // useEffect(() => {
+  //   // const result = loginService.autoLogin();
 
-    // if (result) {
-    //   setUser(result.user);
-    // }
-    dispatch(authActions.autoLogin());
-  }, []);
+  //   // if (result) {
+  //   //   setUser(result.user);
+  //   // }
+  //   dispatch(authActions.autoLogin());
+  // }, []);
 
   return (
     <>
