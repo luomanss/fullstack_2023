@@ -11,6 +11,7 @@ const User = () => {
   });
 
   if (!user) {
+    // TODO: throw error
     return <Navigate to="/404" />;
   }
 
