@@ -174,4 +174,43 @@ blogsRouter.put("/:id", async (request, response, next) => {
   }
 });
 
+blogsRouter.post("/:id/comments", async (request, response, next) => {
+  const { id } = request.params;
+
+  if (!id) {
+    return response.status(400).json({
+      error: "missing id",
+    });
+  }
+
+  const { comment } = request.body;
+
+  if (!comment) {
+    return response.status(400).json({
+      error: "missing comment",
+    });
+  }
+
+  try {
+    const blog = await Blog.findById(id);
+
+    if (!blog) {
+      return response.status(404).end();
+    }
+
+    blog.comments.push(comment);
+
+    await blog.save();
+    await blog.populate("user", {
+      username: 1,
+      name: 1,
+      id: 1,
+    });
+
+    return response.status(201).json(blog);
+  } catch (error) {
+    return next(error);
+  }
+});
+
 export default blogsRouter;

@@ -349,6 +349,7 @@ describe("when there are initially some blogs saved", () => {
         expect(response.status).toBe(401);
       });
     });
+
     describe("patching a blog", () => {
       test("blog can be patched", async () => {
         const blogs = await Blog.find({});
@@ -362,6 +363,20 @@ describe("when there are initially some blogs saved", () => {
           .send(updatedBlog);
 
         expect(response.body.title).toBe(updatedBlog.title);
+      });
+    });
+
+    describe("adding comments to blog", () => {
+      test("comment can be added to blog", async () => {
+        const { id } = (await Blog.find({}))[0];
+
+        const response = await api
+          .post(`/api/blogs/${id}/comments`)
+          .set("Authorization", `Bearer ${token}`)
+          .send({ comment: "Test Comment" });
+
+        expect(response.body.comments).toHaveLength(1);
+        expect(response.body.comments[0]).toBe("Test Comment");
       });
     });
   });
