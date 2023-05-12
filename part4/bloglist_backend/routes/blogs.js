@@ -13,7 +13,7 @@ blogsRouter.get("/", async (_request, response) => {
   return response.json(blogs);
 });
 
-blogsRouter.post("/", async (request, response) => {
+blogsRouter.post("/", async (request, response, next) => {
   if (!request.user) {
     return response.status(401).json({
       error: "token missing or invalid",
@@ -23,20 +23,26 @@ blogsRouter.post("/", async (request, response) => {
   const user = request.user;
   const { title, author, url, likes } = request.body;
   const blog = new Blog({ title, author, url, likes, user: user._id });
-  const savedBlog = await blog.save();
 
-  user.blogs.push(savedBlog._id);
-  await user.save();
-  await savedBlog.populate("user", {
-    username: 1,
-    name: 1,
-    id: 1,
-  });
+  try {
+    const savedBlog = await blog.save();
 
-  return response.status(201).json(savedBlog);
+    user.blogs.push(savedBlog._id);
+
+    await user.save();
+    await savedBlog.populate("user", {
+      username: 1,
+      name: 1,
+      id: 1,
+    });
+
+    return response.status(201).json(savedBlog);
+  } catch (error) {
+    return next(error);
+  }
 });
 
-blogsRouter.delete("/:id", async (request, response) => {
+blogsRouter.delete("/:id", async (request, response, next) => {
   const user = request.user;
 
   if (!user) {
@@ -45,25 +51,29 @@ blogsRouter.delete("/:id", async (request, response) => {
     });
   }
 
-  const { id } = request.params;
-  const blog = await Blog.findById(id);
+  try {
+    const { id } = request.params;
+    const blog = await Blog.findById(id);
 
-  if (!blog) {
-    return response.status(404).end();
+    if (!blog) {
+      return response.status(404).end();
+    }
+
+    if (blog.user.toString() !== user._id.toString()) {
+      return response.status(401).json({
+        error: "only the creator of the blog can delete it",
+      });
+    }
+
+    await Blog.findByIdAndDelete(id);
+
+    return response.status(204).end();
+  } catch (error) {
+    return next(error);
   }
-
-  if (blog.user.toString() !== user._id.toString()) {
-    return response.status(401).json({
-      error: "only the creator of the blog can delete it",
-    });
-  }
-
-  await Blog.findByIdAndDelete(id);
-
-  return response.status(204).end();
 });
 
-blogsRouter.patch("/:id", async (request, response) => {
+blogsRouter.patch("/:id", async (request, response, next) => {
   const user = request.user;
 
   if (!user) {
@@ -73,44 +83,49 @@ blogsRouter.patch("/:id", async (request, response) => {
   }
 
   const { title, author, url, likes } = request.body;
-  
+
   if (!title && !author && !url && !likes) {
     return response.status(400).json({
       error: "no fields to update",
     });
   }
-  
+
   const { id } = request.params;
-  const blog = await Blog.findById(id);
 
-  if (!blog) {
-    return response.status(404).end();
-  }
+  try {
+    const blog = await Blog.findById(id);
 
-  if (author || title || url) {
-    if (blog.user.toString() !== user._id.toString()) {
-      return response.status(401).json({
-        error: "only the creator of the blog can update these fields",
-      });
+    if (!blog) {
+      return response.status(404).end();
     }
+
+    if (author || title || url) {
+      if (blog.user.toString() !== user._id.toString()) {
+        return response.status(401).json({
+          error: "only the creator of the blog can update these fields",
+        });
+      }
+    }
+
+    blog.title = title || blog.title;
+    blog.author = author || blog.author;
+    blog.url = url || blog.url;
+    blog.likes = likes || blog.likes;
+
+    await blog.save();
+    await blog.populate("user", {
+      username: 1,
+      name: 1,
+      id: 1,
+    });
+
+    return response.json(blog);
+  } catch (error) {
+    return next(error);
   }
-
-  blog.title = title || blog.title;
-  blog.author = author || blog.author;
-  blog.url = url || blog.url;
-  blog.likes = likes || blog.likes;
-
-  await blog.save();
-  await blog.populate("user", {
-    username: 1,
-    name: 1,
-    id: 1,
-  });
-
-  return response.json(blog);
 });
 
-blogsRouter.put("/:id", async (request, response) => {
+blogsRouter.put("/:id", async (request, response, next) => {
   if (!request.user) {
     return response.status(401).json({
       error: "token missing or invalid",
@@ -126,32 +141,37 @@ blogsRouter.put("/:id", async (request, response) => {
   }
 
   const { id } = request.params;
-  const blog = await Blog.findById(id);
 
-  if (!blog) {
-    return response.status(404).end();
-  }
+  try {
+    const blog = await Blog.findById(id);
 
-  if (blog.user.toString() !== request.user._id.toString()) {
-    return response.status(401).json({
-      error: "only the creator of the blog can update it",
+    if (!blog) {
+      return response.status(404).end();
+    }
+
+    if (blog.user.toString() !== request.user._id.toString()) {
+      return response.status(401).json({
+        error: "only the creator of the blog can update it",
+      });
+    }
+
+    blog.title = title;
+    blog.author = author;
+    blog.url = url;
+    blog.likes = likes;
+    blog.user = user;
+
+    await blog.save();
+    await blog.populate("user", {
+      username: 1,
+      name: 1,
+      id: 1,
     });
+
+    return response.json(blog);
+  } catch (error) {
+    return next(error);
   }
-
-  blog.title = title;
-  blog.author = author;
-  blog.url = url;
-  blog.likes = likes;
-  blog.user = user;
-
-  await blog.save();
-  await blog.populate("user", {
-    username: 1,
-    name: 1,
-    id: 1,
-  });
-
-  return response.json(blog);
 });
 
 export default blogsRouter;

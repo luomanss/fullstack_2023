@@ -14,7 +14,7 @@ userRouter.get("/", async (_request, response) => {
   return response.json(users);
 });
 
-userRouter.post("/", async (request, response) => {
+userRouter.post("/", async (request, response, next) => {
   const { username, name, password } = request.body;
 
   if (!password || password.length < 3) {
@@ -30,9 +30,13 @@ userRouter.post("/", async (request, response) => {
     passwordHash,
   });
 
-  const savedUser = await user.save();
+  try {
+    const savedUser = await user.save();
 
-  return response.json(savedUser);
+    return response.json(savedUser);
+  } catch (error) {
+    return next(error);
+  }
 });
 
 export default userRouter;

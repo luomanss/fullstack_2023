@@ -7,7 +7,6 @@ import {
   tokenExtractor,
   userExtractor,
 } from "./utils/middleware.js";
-import "express-async-errors";
 
 const app = express();
 
