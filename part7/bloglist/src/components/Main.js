@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Outlet } from "react-router-dom";
 import Notification from "./Notification";
 import Togglable from "./Togglable";
-import Blog from "./Blog";
+import Blog from "../pages/Blog";
 import BlogForm from "./BlogForm";
 import { getAll } from "../reducers/blogsReducer";
 import { logout } from "../reducers/authReducer";

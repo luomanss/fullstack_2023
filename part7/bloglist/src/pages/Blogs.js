@@ -2,11 +2,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { blogsActions } from "../store";
 
-import Togglable from "../components/Togglable";
-import BlogForm from "../components/BlogForm";
-import Blog from "../components/Blog";
+import ToggleableBlogForm from "../components/BlogForm";
+import { Link } from "react-router-dom";
 
-const Bloglist = () => {
+const BlogEntry = ({ blog }) => {
+  return (
+    <div className="entry">
+      <Link to={`/blogs/${blog.id}`}>{blog.title} {blog.author}</Link>
+    </div>
+  );
+};
+
+
+const Blogs = () => {
   const dispatch = useDispatch();
   const { blogs } = useSelector((state) => {
     const blogs = state.blogs.toSorted((a, b) => b.likes - a.likes);
@@ -20,14 +28,13 @@ const Bloglist = () => {
 
   return (
     <div>
-      <Togglable buttonLabel="create new">
-        <BlogForm />
-      </Togglable>
+      <h2>Blogs</h2>
+      <ToggleableBlogForm />
       {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} />
+        <BlogEntry key={blog.id} blog={blog} />
       ))}
     </div>
   );
 };
 
-export default Bloglist;
+export default Blogs;

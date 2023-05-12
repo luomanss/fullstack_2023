@@ -13,22 +13,28 @@ const User = () => {
   };
 
   return user ? (
-    <div>
+    <>
       <p>{user.name}</p>
       <button onClick={handleLogout} data-cy="logout-button">
         logout
       </button>
-    </div>
+    </>
   ) : null;
 };
 
 const Navbar = () => {
+  const navStyle = {
+    display: "flex",
+    justifyContent: "start",
+    alignItems: "center",
+    gap: "1rem",
+    backgroundColor: "#f0f0f0",
+  };
 
   return (
-    <nav>
-      <h2>blogs</h2>
-      <NavLink to="/">Blogs</NavLink>
-      <NavLink to="/users">Users</NavLink>
+    <nav style={navStyle}>
+      <NavLink to="/">blogs</NavLink>
+      <NavLink to="/users">users</NavLink>
       <User />
     </nav>
   );

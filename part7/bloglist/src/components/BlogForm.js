@@ -1,8 +1,9 @@
 import { useDispatch } from "react-redux";
 import { useState } from "react";
 import { create } from "../reducers/blogsReducer";
+// import { Togglable } from "./Togglable";
 
-const BlogForm = () => {
+const BlogForm = ({ onCreate }) => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [url, setUrl] = useState("");
@@ -14,6 +15,7 @@ const BlogForm = () => {
     setTitle("");
     setAuthor("");
     setUrl("");
+    onCreate();
   };
 
   return (
@@ -51,9 +53,24 @@ const BlogForm = () => {
           data-cy="url-field"
         />
       </div>
-      <button id="create-button" type="submit" data-cy="create-blog-button">create</button>
+      <button id="create-button" type="submit" data-cy="create-blog-button">
+        create
+      </button>
     </form>
   );
 };
 
-export default BlogForm;
+const ToggleableBlogForm = () => {
+  const [visible, setVisible] = useState(false);
+
+  return visible ? (
+    <>
+      <BlogForm onCreate={() => setVisible(false)} />
+      <button onClick={() => setVisible(false)}>cancel</button>
+    </>
+  ) : (
+    <button onClick={() => setVisible(true)}>new blog</button>
+  );
+};
+
+export default ToggleableBlogForm;

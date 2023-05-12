@@ -3,9 +3,10 @@ import App from "./App";
 
 import Guard from "./components/Guard";
 import Login from "./pages/Login";
-import Bloglist from "./pages/Bloglist";
+import Blogs from "./pages/Blogs";
 import Users from "./pages/Users";
 import User from "./pages/User";
+import Blog from "./pages/Blog";
 
 const router = createBrowserRouter([
   {
@@ -20,7 +21,15 @@ const router = createBrowserRouter([
         path: "/",
         element: (
           <Guard>
-            <Bloglist />,
+            <Blogs />,
+          </Guard>
+        ),
+      },
+      {
+        path: "/blogs/:id",
+        element: (
+          <Guard>
+            <Blog />
           </Guard>
         ),
       },
@@ -43,7 +52,7 @@ const router = createBrowserRouter([
             <User />
           </Guard>
         ),
-      }
+      },
     ],
   },
 ]);
