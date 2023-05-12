@@ -33,7 +33,9 @@ const patchLikes = async (blog) => {
   let response;
 
   try {
-    response = await axios.patch(`${baseUrl}/${blog.id}`, { likes: blog.likes });
+    response = await axios.patch(`${baseUrl}/${blog.id}`, {
+      likes: blog.likes,
+    });
   } catch (error) {
     if (error.response.status === 401) {
       return {
@@ -71,6 +73,28 @@ const remove = async (id) => {
   };
 };
 
-const service = { getAll, create, patchLikes, remove };
+const addComment = async (id, comment) => {
+  let response;
+
+  try {
+    response = await axios.post(`${baseUrl}/${id}/comments`, { comment });
+  } catch (error) {
+    if (error.response.status === 401) {
+      return {
+        error: "Unauthorized",
+      };
+    } else {
+      return {
+        error: "Something went wrong",
+      };
+    }
+  }
+
+  return {
+    blog: response.data,
+  };
+};
+
+const service = { getAll, create, patchLikes, remove, addComment };
 
 export default service;
