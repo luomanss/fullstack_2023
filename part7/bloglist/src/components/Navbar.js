@@ -75,24 +75,34 @@ const UserMenu = () => {
   );
 };
 
-const NavLink = ({ name, route }) => (
-  <Link
-    as={RouterNavLink}
-    px={2}
-    py={1}
-    rounded={"md"}
-    colorScheme="teal"
-    _hover={{
-      textDecoration: "none",
-      bg: useColorModeValue("teal.500", "gray.700"),
-    }}
-    to={route}
-    _activeLink={{ fontWeight: "bold" }}
-    pointerEvents={"auto"}
-  >
-    {name}
-  </Link>
-);
+const NavLink = ({ name, route }) => {
+  const isLogged = useSelector((state) => state.user !== null);
+  const linkProps = isLogged ? {
+    pointerEvents: "auto",
+  } : {
+    pointerEvents: "none",
+    color: "gray.400",
+  };
+
+  return (
+    <Link
+      as={RouterNavLink}
+      px={2}
+      py={1}
+      rounded={"md"}
+      colorScheme="teal"
+      _hover={{
+        textDecoration: "none",
+        bg: useColorModeValue("teal.500", "gray.700"),
+      }}
+      to={route}
+      _activeLink={{ fontWeight: "bold" }}
+      {...linkProps}
+    >
+      {name}
+    </Link>
+  );
+};
 
 const Links = [
   { name: "Blogs", route: "/" },
