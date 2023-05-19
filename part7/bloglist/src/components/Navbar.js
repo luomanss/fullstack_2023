@@ -66,7 +66,7 @@ const UserMenu = () => {
           <Avatar size={"sm"} name="Kalervo Jankko" />
         </MenuButton>
         <MenuList>
-          <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          <MenuItem onClick={handleLogout} color="black">Logout</MenuItem>
         </MenuList>
       </Menu>
     </Flex>
@@ -79,13 +79,14 @@ const NavLink = ({ children }) => (
     px={2}
     py={1}
     rounded={"md"}
+    colorScheme="teal"
     _hover={{
       textDecoration: "none",
-      bg: useColorModeValue("gray.200", "gray.700"),
+      bg: useColorModeValue("teal.500", "gray.700"),
     }}
     to={`/${children.toLowerCase()}`}
     _activeLink={{ fontWeight: "bold" }}
-    style={{ pointerEvents: "none" }}
+    pointerEvents={"auto"}
   >
     {children}
   </Link>
@@ -105,10 +106,11 @@ const Navbar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
-      <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
+    <Box bg={useColorModeValue("teal", "gray.900")} px={4} textColor={"white"}>
+      <Flex h={16} alignItems="center" justifyContent="space-between">
         <IconButton
           size={"md"}
+          colorScheme="teal"
           icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
           aria-label={"Open Menu"}
           display={{ md: "none" }}

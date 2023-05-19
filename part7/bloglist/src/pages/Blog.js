@@ -2,6 +2,21 @@ import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { blogsActions } from "../store";
+import {
+  Box,
+  Divider,
+  Flex,
+  FormControl,
+  Heading,
+  Input,
+  IconButton,
+  ListItem,
+  Stack,
+  Text,
+  UnorderedList,
+} from "@chakra-ui/react";
+import { DeleteIcon } from "@chakra-ui/icons";
+import { FaComment, FaHeart } from "react-icons/fa";
 
 const AddComment = ({ blog }) => {
   const dispatch = useDispatch();
@@ -16,8 +31,17 @@ const AddComment = ({ blog }) => {
 
   return (
     <form onSubmit={handleAddComment}>
-      <input type="text" name="comment" />
-      <button type="submit">add comment</button>
+      <FormControl>
+        <Stack direction="row">
+          <Input type="text" name="comment" />
+          <IconButton
+            bg="teal"
+            color="white"
+            type="submit"
+            icon={<FaComment />}
+          />
+        </Stack>
+      </FormControl>
     </form>
   );
 };
@@ -65,33 +89,48 @@ const Blog = () => {
   };
 
   return (
-    <div data-cy="blog">
-      <h1>
-        {blog.title} {blog.author}
-      </h1>
-      <div>
-        <div>{blog.url}</div>
-        <div>
-          likes {blog.likes}
-          <button onClick={handleLikes} data-cy="like-button">
-            like
-          </button>
-        </div>
-        <div>added by {blog.user.name}</div>
-        {user && user.id === blog.user.id ? (
-          <button onClick={handleDelete} data-cy="delete-button">
-            delete
-          </button>
-        ) : null}
-      </div>
-      <h3>comments</h3>
-      <AddComment blog={blog} />
-      <ul>
-        {blog.comments.map((comment, index) => (
-          <li key={index}>{comment}</li>
-        ))}
-      </ul>
-    </div>
+    <Flex direction={["column", null, "row"]} gap="6">
+      <Stack w="md">
+        <Box>
+          <Heading size="md">{blog.title}</Heading>
+          <Text>by {blog.author}</Text>
+        </Box>
+        <Stack>
+          <Text>{blog.url}</Text>
+          <Stack direction="row" spacing="2" align="center">
+            <Text>likes {blog.likes}</Text>
+            <IconButton
+              size="xs"
+              icon={<FaHeart />}
+              onClick={handleLikes}
+              data-cy="like-button"
+            />
+            {user && user.id === blog.user.id ? (
+              <IconButton
+                colorScheme="red"
+                size="xs"
+                icon={<DeleteIcon />}
+                onClick={handleDelete}
+                data-cy="delete-button"
+              />
+            ) : null}
+          </Stack>
+          <Divider />
+          <Text fontSize="sm" fontStyle="italic">
+            Added by {blog.user.name}
+          </Text>
+        </Stack>
+      </Stack>
+      <Stack w="300px" gap="2">
+        <Heading size="md">Comments</Heading>
+        <AddComment blog={blog} />
+        <UnorderedList h="150px" overflowY="scroll" stylePosition="inside">
+          {blog.comments.map((comment, index) => (
+            <ListItem key={index}>{comment}</ListItem>
+          ))}
+        </UnorderedList>
+      </Stack>
+    </Flex>
   );
 };
 

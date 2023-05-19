@@ -2,17 +2,32 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { blogsActions } from "../store";
 
-import ToggleableBlogForm from "../components/BlogForm";
+import BlogFormModal from "../components/BlogFormModal";
 import { Link } from "react-router-dom";
+import {
+  Box,
+  Card,
+  // CardBody,
+  CardHeader,
+  SimpleGrid,
+  Heading,
+  Text,
+} from "@chakra-ui/react";
 
 const BlogEntry = ({ blog }) => {
   return (
-    <div className="entry">
-      <Link to={`/blogs/${blog.id}`}>{blog.title} {blog.author}</Link>
-    </div>
+    <Link to={`/blogs/${blog.id}`}>
+      <Card>
+        <CardHeader>
+          <Box>
+            <Heading size={"sm"}>{blog.author}</Heading>
+            <Text>{blog.title}</Text>
+          </Box>
+        </CardHeader>
+      </Card>
+    </Link>
   );
 };
-
 
 const Blogs = () => {
   const dispatch = useDispatch();
@@ -27,13 +42,14 @@ const Blogs = () => {
   }, []);
 
   return (
-    <div>
-      <h2>Blogs</h2>
-      <ToggleableBlogForm />
-      {blogs.map((blog) => (
-        <BlogEntry key={blog.id} blog={blog} />
-      ))}
-    </div>
+    <>
+      <BlogFormModal />
+      <SimpleGrid columns={["1", "2"]} spacing={10}>
+        {blogs.map((blog) => (
+          <BlogEntry key={blog.id} blog={blog} />
+        ))}
+      </SimpleGrid>
+    </>
   );
 };
 
