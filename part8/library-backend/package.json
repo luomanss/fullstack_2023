@@ -1,0 +1,21 @@
+{
+  "name": "library-backend",
+  "version": "0.0.1",
+  "description": "A library backend using GraphQL",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sami Luomansuu",
+  "license": "MIT",
+  "dependencies": {
+    "@apollo/server": "^4.7.1",
+    "graphql": "^16.6.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
