@@ -62,11 +62,12 @@ const UserMenu = () => {
           variant={"link"}
           cursor={"pointer"}
           minW={0}
+          data-cy="user-menu-button"
         >
           <Avatar size={"sm"} name="Kalervo Jankko" />
         </MenuButton>
         <MenuList>
-          <MenuItem onClick={handleLogout} color="black">
+          <MenuItem onClick={handleLogout} color="black" data-cy="logout-button">
             Logout
           </MenuItem>
         </MenuList>
@@ -97,6 +98,7 @@ const NavLink = ({ name, route }) => {
       }}
       to={route}
       _activeLink={{ fontWeight: "bold" }}
+      data-cy={`nav-link-${name.toLowerCase()}`}
       {...linkProps}
     >
       {name}

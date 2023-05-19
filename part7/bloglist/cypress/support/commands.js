@@ -34,7 +34,7 @@ Cypress.Commands.add("login", ({ username, password }) => {
 });
 
 Cypress.Commands.add("createBlog", ({ title, author, url }) => {
-  cy.get("[data-cy=toggle-visible-button]").click();
+  cy.get("[data-cy=new-blog-modal-button]").click();
   cy.get("[data-cy=title-field]").type(title);
   cy.get("[data-cy=author-field").type(author);
   cy.get("[data-cy=url-field").type(url);

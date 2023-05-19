@@ -89,7 +89,7 @@ const BlogFormModal = () => {
 
   return (
     <>
-      <Button onClick={onOpen} mb="4">New blog</Button>
+      <Button onClick={onOpen} mb="4" data-cy="new-blog-modal-button">New blog</Button>
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />

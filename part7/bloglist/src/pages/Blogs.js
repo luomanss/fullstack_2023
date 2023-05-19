@@ -16,7 +16,7 @@ import {
 
 const BlogEntry = ({ blog }) => {
   return (
-    <Link to={`/blogs/${blog.id}`}>
+    <Link to={`/blogs/${blog.id}`} data-cy="blog-entry">
       <Card>
         <CardHeader>
           <Box>

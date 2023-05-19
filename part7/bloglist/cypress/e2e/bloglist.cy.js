@@ -13,9 +13,8 @@ describe("Blog app", () => {
   });
 
   it("is opened with login form", () => {
-    cy.contains("log in to application");
-    cy.get("[data-cy=username-field]");
-    cy.get("[data-cy=password-field]");
+    cy.get("[data-cy=username-field]").should("exist");
+    cy.get("[data-cy=password-field]").should("exist");
   });
 
   describe("while logging in", () => {
@@ -23,14 +22,14 @@ describe("Blog app", () => {
       cy.get("[data-cy=username-field]").type("testuser");
       cy.get("[data-cy=password-field]").type("testpassword");
       cy.get("[data-cy=login-button]").click();
-      cy.contains("Test User logged in");
+      cy.contains("Test User logged in").should("exist");
     });
 
     it("fails with wrong credentials", () => {
       cy.get("[data-cy=username-field").type("testuser");
       cy.get("[data-cy=password-field").type("wrongpassword");
       cy.get("[data-cy=login-button]").click();
-      cy.contains("Invalid username or password");
+      cy.contains("Invalid username or password").should("exist");
     });
   });
 
@@ -46,17 +45,19 @@ describe("Blog app", () => {
     });
 
     it("user can log out", () => {
+      cy.get("[data-cy=user-menu-button]").click();
       cy.get("[data-cy=logout-button]").click();
-      cy.contains("log in to application");
+      cy.get("[data-cy=username-field]").should("exist");
+      cy.get("[data-cy=password-field]").should("exist");
     });
 
     it("user can create a new blog", () => {
-      cy.get("[data-cy=toggle-visible-button]").click();
+      cy.get("[data-cy=new-blog-modal-button]").click();
       cy.get("[data-cy=title-field]").type(testBlog.title);
       cy.get("[data-cy=author-field]").type(testBlog.author);
       cy.get("[data-cy=url-field]").type(testBlog.url);
       cy.get("[data-cy=create-blog-button]").click();
-      cy.contains("A Test Blog by Test Author");
+      cy.contains("A Test Blog by Test Author").should("exist");
     });
 
     describe("and a blog exists", () => {
@@ -65,15 +66,18 @@ describe("Blog app", () => {
       });
 
       it("user can like a blog", () => {
-        cy.get("[data-cy=view-button]").click();
+        cy.get("[data-cy=blog-entry]").click();
         cy.get("[data-cy=like-button]").click();
-        cy.contains("likes 1");
+        cy.contains("likes 1").should("exist");
       });
 
       it("user can delete a blog if he created it", () => {
-        cy.get("[data-cy=view-button]").click();
+        cy.intercept("DELETE", "/api/blogs/*").as("deleteBlog");
+        cy.get("[data-cy=blog-entry]").click();
         cy.get("[data-cy=delete-button]").click();
-        cy.get("[data-cy=blog]").should("not.exist");
+        cy.wait("@deleteBlog");
+        cy.reload();
+        cy.get("[data-cy=blog-entry]").should("not.exist");
       });
     });
 
@@ -95,37 +99,29 @@ describe("Blog app", () => {
       it("blogs are sorted by likes", () => {
         cy.intercept("PATCH", "/api/blogs/*").as("likeBlog");
 
-        cy.get("[data-cy=blog]")
-          .contains("A Test Blog Test Author")
-          .within(() => {
-            cy.get("[data-cy=view-button]").click();
-            cy.get("[data-cy=like-button]").click();
-            cy.wait("@likeBlog");
-          });
+        cy.get("[data-cy=blog-entry]").contains("A Test Blog").click();
 
-        cy.get("[data-cy=blog]")
-          .eq(0)
-          .should("contain", "A Test Blog Test Author");
-        cy.get("[data-cy=blog]")
+        cy.get("[data-cy=like-button]").click();
+        cy.wait("@likeBlog");
+        cy.get("[data-cy=nav-link-blogs").click();
+
+        cy.get("[data-cy=blog-entry]").eq(0).should("contain", "A Test Blog");
+        cy.get("[data-cy=blog-entry]")
           .eq(1)
-          .should("contain", "Another Test Blog Another Test Author");
+          .should("contain", "Another Test Blog");
 
-        cy.get("[data-cy=blog]")
-          .contains("Another Test Blog Another Test Author")
-          .within(() => {
-            cy.get("[data-cy=view-button]").click();
-            cy.get("[data-cy=like-button]").click();
-            cy.wait("@likeBlog");
-            cy.get("[data-cy=like-button]").click();
-            cy.wait("@likeBlog");
-          });
+        cy.get("[data-cy=blog-entry]").contains("Another Test Blog").click();
 
-        cy.get("[data-cy=blog]")
+        cy.get("[data-cy=like-button]").click();
+        cy.wait("@likeBlog");
+        cy.get("[data-cy=like-button]").click();
+        cy.wait("@likeBlog");
+        cy.get("[data-cy=nav-link-blogs").click();
+
+        cy.get("[data-cy=blog-entry]")
           .eq(0)
-          .should("contain", "Another Test Blog Another Test Author");
-        cy.get("[data-cy=blog]")
-          .eq(1)
-          .should("contain", "A Test Blog Test Author");
+          .should("contain", "Another Test Blog");
+        cy.get("[data-cy=blog-entry]").eq(1).should("contain", "A Test Blog");
       });
     });
   });
@@ -142,6 +138,7 @@ describe("Blog app", () => {
       cy.login({ username: "testuser", password: "testpassword" });
       cy.createBlog(testBlog);
       cy.wait("@createBlog");
+      cy.get("[data-cy=user-menu-button]").click();
       cy.get("[data-cy=logout-button]").click();
 
       const otherUser = {
@@ -156,8 +153,8 @@ describe("Blog app", () => {
     });
 
     it("user cannot delete blog by another user", () => {
-      cy.contains("view").click();
-      cy.contains("delete").should("not.exist");
+      cy.get("[data-cy=blog-entry]").click();
+      cy.get("[data-cy=delete-button]").should("not.exist");
     });
   });
 });

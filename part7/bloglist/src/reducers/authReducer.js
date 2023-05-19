@@ -33,6 +33,15 @@ export const login = (user) => {
     }
 
     dispatch(setUser(response.user));
+    dispatch(
+      setNotificationWithTimeoutSeconds(
+        {
+          type: "success",
+          content: `${response.user.name} logged in`,
+        },
+        5
+      )
+    );
   };
 };
 

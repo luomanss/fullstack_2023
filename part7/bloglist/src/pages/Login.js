@@ -51,15 +51,16 @@ const LoginForm = ({ onSubmit }) => {
         <Stack spacing={4}>
           <FormControl id="email">
             <FormLabel>Username</FormLabel>
-            <Input type="text" onChange={onChangeHandler(setUsername)} />
+            <Input type="text" onChange={onChangeHandler(setUsername)} data-cy="username-field"/>
           </FormControl>
           <FormControl id="password">
             <FormLabel>Password</FormLabel>
-            <Input type="password" onChange={onChangeHandler(setPassword)} />
+            <Input type="password" onChange={onChangeHandler(setPassword)} data-cy="password-field"/>
           </FormControl>
           <Button
             type="submit"
             colorScheme="teal"
+            data-cy="login-button"
           >
             Login
           </Button>
