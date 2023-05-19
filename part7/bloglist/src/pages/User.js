@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
+import { Heading, ListItem, Stack, UnorderedList } from "@chakra-ui/react";
 
 const User = () => {
   const id = useParams().id;
@@ -16,15 +17,15 @@ const User = () => {
   }
 
   return (
-    <div>
-      <h2>{user.name}</h2>
-      <h3>added blogs</h3>
-      <ul>
+    <Stack>
+      <Heading size="md">{user.name}</Heading>
+      <Heading size="sm">added blogs</Heading>
+      <UnorderedList stylePosition="inside">
         {user.blogs.map((blog) => (
-          <li key={blog.id}>{blog.title}</li>
+          <ListItem key={blog.id} >{blog.title}</ListItem>
         ))}
-      </ul>
-    </div>
+      </UnorderedList>
+    </Stack>
   );
 };
 

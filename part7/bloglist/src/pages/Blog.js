@@ -1,6 +1,5 @@
-import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
+import { useParams, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import { blogsActions } from "../store";
 import {
   Box,
@@ -10,12 +9,13 @@ import {
   Heading,
   Input,
   IconButton,
+  Link,
   ListItem,
   Stack,
   Text,
   UnorderedList,
 } from "@chakra-ui/react";
-import { DeleteIcon } from "@chakra-ui/icons";
+import { DeleteIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { FaComment, FaHeart } from "react-icons/fa";
 
 const AddComment = ({ blog }) => {
@@ -49,6 +49,7 @@ const AddComment = ({ blog }) => {
 const Blog = () => {
   const id = useParams().id;
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const blog = useSelector((state) => {
     const blog = state.blogs.find((blog) => blog.id === id);
 
@@ -85,18 +86,22 @@ const Blog = () => {
 
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
       dispatch(blogsActions.remove(blog.id));
+      navigate("/");
     }
   };
 
   return (
     <Flex direction={["column", null, "row"]} gap="6">
-      <Stack w="md">
+      <Stack w="md" gap="4">
         <Box>
           <Heading size="md">{blog.title}</Heading>
           <Text>by {blog.author}</Text>
         </Box>
         <Stack>
-          <Text>{blog.url}</Text>
+          <Link href={blog.url} isExternal>
+            {blog.url}
+            <ExternalLinkIcon mx="2px" />
+          </Link>
           <Stack direction="row" spacing="2" align="center">
             <Text>likes {blog.likes}</Text>
             <IconButton
@@ -115,11 +120,11 @@ const Blog = () => {
               />
             ) : null}
           </Stack>
-          <Divider />
-          <Text fontSize="sm" fontStyle="italic">
-            Added by {blog.user.name}
-          </Text>
         </Stack>
+        <Divider />
+        <Text fontSize="sm" fontStyle="italic">
+          Added by {blog.user.name}
+        </Text>
       </Stack>
       <Stack w="300px" gap="2">
         <Heading size="md">Comments</Heading>

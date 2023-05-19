@@ -44,7 +44,7 @@ const Blogs = () => {
   return (
     <>
       <BlogFormModal />
-      <SimpleGrid columns={["1", "2"]} spacing={10}>
+      <SimpleGrid columns={["1", "2", "3"]} spacing={10}>
         {blogs.map((blog) => (
           <BlogEntry key={blog.id} blog={blog} />
         ))}

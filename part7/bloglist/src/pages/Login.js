@@ -59,11 +59,7 @@ const LoginForm = ({ onSubmit }) => {
           </FormControl>
           <Button
             type="submit"
-            bg={"blue.400"}
-            color={"white"}
-            _hover={{
-              bg: "blue.500",
-            }}
+            colorScheme="teal"
           >
             Login
           </Button>
