@@ -28,8 +28,10 @@ const Users = () => {
       <TableContainer>
         <Table>
           <Thead>
-            <Th>Name</Th>
-            <Th>Blogs created</Th>
+            <Tr>
+              <Th>Name</Th>
+              <Th>Blogs created</Th>
+            </Tr>
           </Thead>
           <Tbody>
             {users.map((user) => (

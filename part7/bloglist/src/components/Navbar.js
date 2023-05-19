@@ -66,14 +66,16 @@ const UserMenu = () => {
           <Avatar size={"sm"} name="Kalervo Jankko" />
         </MenuButton>
         <MenuList>
-          <MenuItem onClick={handleLogout} color="black">Logout</MenuItem>
+          <MenuItem onClick={handleLogout} color="black">
+            Logout
+          </MenuItem>
         </MenuList>
       </Menu>
     </Flex>
   );
 };
 
-const NavLink = ({ children }) => (
+const NavLink = ({ name, route }) => (
   <Link
     as={RouterNavLink}
     px={2}
@@ -84,25 +86,20 @@ const NavLink = ({ children }) => (
       textDecoration: "none",
       bg: useColorModeValue("teal.500", "gray.700"),
     }}
-    to={`/${children.toLowerCase()}`}
+    to={route}
     _activeLink={{ fontWeight: "bold" }}
     pointerEvents={"auto"}
   >
-    {children}
+    {name}
   </Link>
 );
 
-const Links = ["Blogs", "Users"];
+const Links = [
+  { name: "Blogs", route: "/" },
+  { name: "Users", route: "/users" },
+];
 
 const Navbar = () => {
-  // const navStyle = {
-  //   display: "flex",
-  //   justifyContent: "start",
-  //   alignItems: "center",
-  //   gap: "1rem",
-  //   backgroundColor: "#f0f0f0",
-  // };
-
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
@@ -120,7 +117,7 @@ const Navbar = () => {
           <Box>BlogsApp</Box>
           <HStack as={"nav"} spacing={4} display={{ base: "none", md: "flex" }}>
             {Links.map((link) => (
-              <NavLink key={link}>{link}</NavLink>
+              <NavLink key={link.name} {...link} />
             ))}
           </HStack>
         </HStack>
@@ -148,7 +145,7 @@ const Navbar = () => {
         <Box pb={4} display={{ md: "none" }}>
           <Stack as={"nav"} spacing={4}>
             {Links.map((link) => (
-              <NavLink key={link}>{link}</NavLink>
+              <NavLink key={link} {...link} />
             ))}
           </Stack>
         </Box>
