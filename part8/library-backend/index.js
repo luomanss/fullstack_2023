@@ -160,6 +160,7 @@ const typeDefs = `
     authorCount: Int!
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
+    allGenres: [String!]!
     me: User
   }
 `;
@@ -187,9 +188,17 @@ const resolvers = {
         return Book.find({ genres: { $in: [genre] } }).populate("author");
       }
 
+      console.log("Populating all books");
+
       return Book.find({}).populate("author");
     },
     allAuthors: async () => Author.find({}),
+    allGenres: async () => {
+      const books = await Book.find({});
+      const genres = books.map((book) => book.genres).flat();
+
+      return [...new Set(genres)];
+    },
     me: async (_root, _args, context) => {
       return context.user;
     },
@@ -209,7 +218,13 @@ const resolvers = {
         });
       }
 
-      const author = await Author.findOne({ name });
+      let author = await Author.findOne({ name });
+
+      if (!author) {
+        author = new Author({ name });
+        author = await author.save();
+      }
+
       const book = new Book({ title, author, published, genres });
 
       try {
