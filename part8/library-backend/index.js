@@ -1,10 +1,18 @@
 import { ApolloServer } from "@apollo/server";
 import { GraphQLError } from "graphql";
-import { startStandaloneServer } from "@apollo/server/standalone";
+import { expressMiddleware } from "@apollo/server/express4";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import { makeExecutableSchema } from "@graphql-tools/schema";
+import { WebSocketServer } from "ws";
+import { useServer } from "graphql-ws/use/ws";
+import { PubSub } from "graphql-subscriptions";
 import mongoose from "mongoose";
 import * as dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import express from "express";
+import cors from "cors";
+import http from "http";
 import Author from "./models/author.js";
 import Book from "./models/book.js";
 import User from "./models/user.js";
@@ -163,8 +171,13 @@ const typeDefs = `
     allGenres: [String!]!
     me: User
   }
+
+  type Subscription {
+    bookAdded: Book!
+  }
 `;
 
+const pubsub = new PubSub();
 const resolvers = {
   Query: {
     bookCount: async () => Book.collection.countDocuments(),
@@ -188,11 +201,28 @@ const resolvers = {
         return Book.find({ genres: { $in: [genre] } }).populate("author");
       }
 
-      console.log("Populating all books");
-
       return Book.find({}).populate("author");
     },
-    allAuthors: async () => Author.find({}),
+    allAuthors: async () => {
+      return Author.aggregate([
+        {
+          $lookup: {
+            from: "books",
+            localField: "_id",
+            foreignField: "author",
+            as: "books",
+          },
+        },
+        {
+          $project: {
+            id: { $toString: "$_id" },
+            name: 1,
+            born: 1,
+            bookCount: { $size: "$books" },
+          },
+        },
+      ]);
+    },
     allGenres: async () => {
       const books = await Book.find({});
       const genres = books.map((book) => book.genres).flat();
@@ -228,7 +258,9 @@ const resolvers = {
       const book = new Book({ title, author, published, genres });
 
       try {
-        return await book.save();
+        const saved_book = await book.save();
+
+        pubsub.publish("BOOK_ADDED", { bookAdded: saved_book });
       } catch (error) {
         if (error.name === "ValidationError") {
           throw new GraphQLError(error.message, {
@@ -297,44 +329,73 @@ const resolvers = {
       return { value: token };
     },
   },
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterableIterator(["BOOK_ADDED"]),
+    },
+  },
 };
 
+const app = express();
+const httpServer = http.createServer(app);
+const wsServer = new WebSocketServer({ server: httpServer, path: "/" });
+const schema = makeExecutableSchema({ typeDefs, resolvers });
+const serverCleanup = useServer({ schema }, wsServer);
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
+  schema,
+  plugins: [
+    ApolloServerPluginDrainHttpServer({ httpServer }),
+    {
+      async serverWillStart() {
+        return {
+          async drainServer() {
+            await serverCleanup.dispose();
+          },
+        };
+      },
+    },
+  ],
 });
 
-const context = async ({ req }) => {
-  const auth = req ? req.headers.authorization : null;
+await server.start();
 
-  if (!auth) {
-    return {};
-  }
+app.use(
+  "/",
+  cors(),
+  express.json(),
+  expressMiddleware(server, {
+    context: async ({ req }) => {
+      const auth = req ? req.headers.authorization : null;
 
-  let [bearer, token] = auth.split(" ");
+      if (!auth) {
+        return {};
+      }
 
-  if (!bearer || bearer !== "Bearer" || !token) {
-    return {};
-  }
+      let [bearer, token] = auth.split(" ");
 
-  let decodedToken = null;
+      if (!bearer || bearer !== "Bearer" || !token) {
+        return {};
+      }
 
-  try {
-    decodedToken = jwt.verify(token, JWT_SECRET);
-  } catch (error) {
-    throw new GraphQLError("Invalid token", {
-      extensions: { code: "UNAUTHENTICATED" },
-    });
-  }
+      let decodedToken = null;
 
-  const user = await User.findById(decodedToken.id);
+      try {
+        decodedToken = jwt.verify(token, JWT_SECRET);
+      } catch (error) {
+        throw new GraphQLError("Invalid token", {
+          extensions: { code: "UNAUTHENTICATED" },
+        });
+      }
 
-  return { user };
-};
+      const user = await User.findById(decodedToken.id);
 
-const standAloneServer = await startStandaloneServer(server, {
-  listen: { port: 4000 },
-  context,
-});
+      return { user };
+    },
+  })
+);
 
-console.log(`Server ready at ${standAloneServer.url}`);
+const PORT = 4000;
+
+await new Promise((resolve) => httpServer.listen(PORT, resolve));
+
+console.log(`Server is now running on http://localhost:${PORT}`);
