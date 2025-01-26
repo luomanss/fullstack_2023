@@ -1,3 +1,6 @@
 [submodule "part9/patientor_frontend"]
 	path = part9/patientor_frontend
 	url = https://github.com/luomanss/patientor.git
+[submodule "part9/flight_diary_backend"]
+	path = part9/flight_diary_backend
+	url = https://github.com/luomanss/flight-diary.git
