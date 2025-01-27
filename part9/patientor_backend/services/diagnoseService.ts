@@ -1,9 +1,14 @@
-import diagnoses from "../data/diagnoses";
+import { diagnoses, codes } from "../data/diagnoses";
 
-const getDiagnoses = () => {
+export const getDiagnoses = () => {
   return diagnoses;
+};
+
+export const getCodes = () => {
+  return codes;
 };
 
 export default {
   getDiagnoses,
+  getCodes,
 };

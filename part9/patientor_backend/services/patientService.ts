@@ -4,7 +4,7 @@ import {
   NewPatient,
   Patient,
 } from "../types";
-import patients from "../data/patients";
+import patients from "../data/patients-full";
 
 const getNonsesitivePatientEntries = (): NonSensitivePatientEntry[] => {
   return patients.map(({ id, name, dateOfBirth, gender, occupation }) => ({

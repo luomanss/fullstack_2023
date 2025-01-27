@@ -1,6 +1,6 @@
 import { Diagnosis } from "../types";
 
-const data: Diagnosis[] = [
+export const diagnoses: Diagnosis[] = [
   {
     code: "M24.2",
     name: "Disorder of ligament",
@@ -78,4 +78,4 @@ const data: Diagnosis[] = [
   },
 ];
 
-export default data;
+export const codes = new Set(diagnoses.map((d) => d.code));
