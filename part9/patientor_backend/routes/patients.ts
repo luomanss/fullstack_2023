@@ -1,9 +1,10 @@
 import express, { Request, Response, NextFunction } from "express";
+import { z } from "zod";
+import { v4 as uuid } from "uuid";
 import patientService from "../services/patientService";
 import { codes } from "../data/diagnoses";
 import { Entry, EntryType, NewEntry, NewPatient } from "../types";
 import { newPatientSchema, newEntrySchema, assertNever, newHealthCheckEntrySchema, newOccupationalHealthcareEntrySchema, newHospitalEntrySchema } from "../util";
-import { z } from "zod";
 
 const router = express.Router();
 
@@ -45,7 +46,7 @@ const newEntryParser = (req: Request, _res: Response, next: NextFunction) => {
     const base = newEntrySchema.parse(req.body);
 
     if (base.diagnosisCodes.some((code) => !codes.has(code))) {
-      throw new Error("Invalid diagnosis code");
+      throw new z.ZodError([]);
     }
 
     switch (base.type) {
@@ -68,7 +69,7 @@ const newEntryParser = (req: Request, _res: Response, next: NextFunction) => {
   }
 };
 
-router.post("/api/patients/:id/entries", newEntryParser, (req: Request<{ id: string }, unknown, NewEntry>, res) => {
+router.post("/:id/entries", newEntryParser, (req: Request<{ id: string }, unknown, NewEntry>, res) => {
   const patient = patientService.getPatient(req.params.id);
 
   if (!patient) {
@@ -76,7 +77,7 @@ router.post("/api/patients/:id/entries", newEntryParser, (req: Request<{ id: str
     return;
   }
 
-  const newEntry = req.body;
+  const newEntry = { ...req.body, id: uuid() };
 
   patient.entries.push(newEntry as Entry);
 
@@ -90,7 +91,9 @@ const errorMiddleware = (
   next: NextFunction
 ) => {
   if (error instanceof z.ZodError) {
-    res.status(400).json({ error: error.issues });
+    const issue = error.issues[0].path[0] as string;
+
+    res.status(400).json({ error: `Invalid ${issue}` });
   } else {
     next(error);
   }
